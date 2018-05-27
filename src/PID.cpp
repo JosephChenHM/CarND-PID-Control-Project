@@ -23,7 +23,7 @@ void PID::Init(double Kp, double Ki, double Kd) {
     i_error = 0.0;
 
     // Twiddle
-    enable_twiddle = true;
+    enable_twiddle = false;
     // select adjustment width
     dp = { 0.05*Kp, 
     	   0.05*Kd,

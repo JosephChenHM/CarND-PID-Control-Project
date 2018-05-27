@@ -41,7 +41,7 @@ int main()
 
   // best error: 460.967 , twiddle 606 laps
   pid_steer.Init(0.0494281, 0.00538273, 0.694745);
-  pid_throttle.Init(0.197712, 0.00, 0.0138949);
+  pid_throttle.Init(0.197712, 0.00, 0.0188949);
 
   // twiddle update - error: 782.494 - max throttle 0.7
   // pid_s.Init(0.134611, 0.000270736, 3.05349);
