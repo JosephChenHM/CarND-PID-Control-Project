@@ -3,7 +3,7 @@
 #include "json.hpp"
 #include "PID.h"
 #include <math.h>
-
+#include <limits>
 // for convenience
 using json = nlohmann::json;
 
@@ -31,11 +31,27 @@ std::string hasData(std::string s) {
 int main()
 {
   uWS::Hub h;
-
-  PID pid;
+// steering and throttle PID controllers
+  PID pid_steer, pid_throttle;
   // TODO: Initialize the pid variable.
 
-  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  // Initialize first pid variable
+  // pid_steer.Init(0.05, 0.005, 1.00);
+  // pid_throttle.Init(0.2, 0.00, 0.02);
+
+  // best error: 460.967 , twiddle 606 laps
+  pid_steer.Init(0.0494281, 0.00538273, 0.694745);
+  pid_throttle.Init(0.197712, 0.00, 0.0138949);
+
+  // twiddle update - error: 782.494 - max throttle 0.7
+  // pid_s.Init(0.134611, 0.000270736, 3.05349);
+  // pid_t.Init(0.316731, 0.0000, 0.0226185);
+
+  // twiddle update - error: ?? - max throttle 0.8
+  // pid_s.Init(0.134611, 0.000270736, 3.05349);
+  // pid_t.Init(0.316731, 0.0000, 0.0226185);
+
+  h.onMessage([&pid_steer, &pid_throttle](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -50,22 +66,27 @@ int main()
           double cte = std::stod(j[1]["cte"].get<std::string>());
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
-          double steer_value;
+          double steer_value, throttle_value;
           /*
           * TODO: Calcuate steering value here, remember the steering value is
           * [-1, 1].
           * NOTE: Feel free to play around with the throttle and speed. Maybe use
           * another PID controller to control the speed!
           */
-          
-          // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+
+          // update error and calculate steer_value at each step
+          pid_steer.UpdateError(cte);
+          steer_value = pid_steer.TotalError();
+
+          // update error and calculate throttle_value at each step
+          pid_throttle.UpdateError(fabs(cte));
+          throttle_value = 0.6 + pid_throttle.TotalError();
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["throttle"] = throttle_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+          // std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {
