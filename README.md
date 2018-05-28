@@ -21,6 +21,8 @@ The throttle is inversely mapped to the cross track error. As Vehicle go away fr
 ## Hyperparameter
 First set of parameter is manually tuned for successfully driving through all the track. When we could driving along the track, we could use this parameter set as starting point to tune hyperparameter and first lap error as reference score. We used twiddle to find optimal parameter set. We drive around track around 600 times to finalize our Steer PID parameter `Kp = 0.0494281` `Ki = 0.00538273` `Kd = 0.694745`
 
+### Driving Video
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ORFBg09PtSM/0.jpg)](https://www.youtube.com/watch?v=ORFBg09PtSM)
 ---
 
 ## Dependencies
